@@ -1,3 +1,0 @@
-name resolution {
-  Var{"a" @:9} |-> Var{"a" @:1} via [#-s-1 D Var{"a" @:1}]
-}

@@ -1,0 +1,6 @@
+*.scope-graph
+*.name-resolution
+*.constraints
+*.aterm
+.project
+.settings
