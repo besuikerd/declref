@@ -1,0 +1,333 @@
+Module(
+  "static-semantics"
+, [ Imports([ImportWildcard("signatures")])
+  , Rules(
+      [ CGenInitRule(
+          Tuple([Var("s")])
+        , NoType()
+        , [NewScopes([Var("s")])]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Program", [Var("stmts")])
+        , Tuple([Var("s")])
+        , NoType()
+        , [ CGenRecurse(
+              NameNoArgs("Map1")
+            , Var("stmts")
+            , Tuple([Var("s")])
+            , NoType()
+            )
+          ]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Decl", [Var("decl")])
+        , Tuple([Var("s")])
+        , NoType()
+        , [CGenRecurse(
+             NoName()
+           , Var("decl")
+           , Tuple([Var("s")])
+           , NoType()
+           )]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("VarDefinition", [Var("name"), Var("exp")])
+        , Tuple([Var("s")])
+        , NoType()
+        , [ CGenRecurse(
+              NoName()
+            , Var("exp")
+            , Tuple([Var("s")])
+            , Type(Var("ty"))
+            )
+          , CEqual(
+              Var("ety")
+            , Var("ty")
+            , Message(
+                Error()
+              , Formatted(
+                  [ Text("expected type: ")
+                  , Term(Var("ty"))
+                  , Text(", got: ")
+                  , Term(Var("ety"))
+                  ]
+                )
+              , TermIndexFrom(Var("exp"))
+              )
+            )
+          , CGDecl(
+              Occurrence(Namespace("Var"), Var("name"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CDeclType(
+              Occurrence(Namespace("Var"), Var("name"), DefaultOccurrenceIndex())
+            , Var("ty")
+            , ""
+            , DefaultMessage()
+            )
+          ]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op(
+            "FunctionDefinition"
+          , [Var("name"), Var("params"), Var("exp")]
+          )
+        , Tuple([Var("s")])
+        , NoType()
+        , [ CGDecl(
+              Occurrence(Namespace("Fun"), Var("name"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CDeclType(
+              Occurrence(Namespace("Fun"), Var("name"), DefaultOccurrenceIndex())
+            , Var("fty")
+            , ""
+            , DefaultMessage()
+            )
+          , NewScopes([Var("function_scope")])
+          , CGDirectEdge(Var("function_scope"), P(), Var("s"), DefaultTermIndex())
+          , CGenRecurse(
+              NameNoArgs("Map1T")
+            , Var("params")
+            , Tuple([Var("function_scope")])
+            , Type(Var("pty"))
+            )
+          , CGenRecurse(
+              NoName()
+            , Var("exp")
+            , Tuple([Var("function_scope")])
+            , Type(Var("ty"))
+            )
+          , CEqual(
+              Var("fty")
+            , Op("FunctionType", [Var("ty"), Var("pty")])
+            , DefaultMessage()
+            )
+          ]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("TypeParameter", [Var("name"), Var("type")])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [ CGenRecurse(
+              NoName()
+            , Var("type")
+            , Tuple([Var("s")])
+            , Type(Var("ty"))
+            )
+          , CGDecl(
+              Occurrence(Namespace("Var"), Var("name"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CDeclType(
+              Occurrence(Namespace("Var"), Var("name"), DefaultOccurrenceIndex())
+            , Var("ty")
+            , ""
+            , DefaultMessage()
+            )
+          ]
+        )
+      ]
+    )
+  , Signature(
+      [ Constructors(
+          [ NullaryOpDecl("TBoolean", SortNoArgs("Type"))
+          , NullaryOpDecl("TInt", SortNoArgs("Type"))
+          , NullaryOpDecl("TString", SortNoArgs("Type"))
+          ]
+        )
+      , Constructors(
+          [ OpDecl(
+              "FunctionType"
+            , [SortNoArgs("Type"), ListSort(SortNoArgs("Type"))]
+            , SortNoArgs("FunctionType")
+            )
+          ]
+        )
+      ]
+    )
+  , Rules(
+      [ CGenMatchRule(
+          NoName()
+        , Op("Int", [Var("i")])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TInt", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("String", [Var("str")])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TString", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("True", [])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TBoolean", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("False", [])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TBoolean", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Ref", [Var("name")])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [ CGRef(
+              Occurrence(Namespace("Var"), Var("name"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CResolve(
+              Occurrence(Namespace("Var"), Var("name"), DefaultOccurrenceIndex())
+            , Var("name_def")
+            , DefaultMessage()
+            )
+          , CDeclType(Var("name_def"), Var("ty"), "", DefaultMessage())
+          ]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Apply", [Var("fn"), Var("params")])
+        , Tuple([Var("s")])
+        , Type(Var("rty"))
+        , [ CGRef(
+              Occurrence(Namespace("Fun"), Var("fn"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CResolve(
+              Occurrence(Namespace("Fun"), Var("fn"), DefaultOccurrenceIndex())
+            , Var("fn_def")
+            , DefaultMessage()
+            )
+          , CDeclType(
+              Var("fn_def")
+            , Op("FunctionType", [Var("rty"), Var("fpty")])
+            , ""
+            , DefaultMessage()
+            )
+          , CGenRecurse(
+              NameNoArgs("Map1T")
+            , Var("params")
+            , Tuple([Var("s")])
+            , Type(Var("pty"))
+            )
+          , CEqual(
+              Var("fpty")
+            , Var("pty")
+            , Message(
+                Error()
+              , Formatted([Text("invalid function parameters")])
+              , TermIndexFrom(Var("fn"))
+              )
+            )
+          ]
+        )
+      ]
+    )
+  , Rules(
+      [ CGenMatchRule(
+          NoName()
+        , Op("BooleanType", [])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TBoolean", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("IntType", [])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TInt", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("StringType", [])
+        , Tuple([Var("s")])
+        , Type(Var("ty"))
+        , [CEqual(Var("ty"), Op("TString", []), DefaultMessage())]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Scope", [Var("stmts")])
+        , Tuple([Var("s")])
+        , NoType()
+        , [ NewScopes([Var("s_child")])
+          , CGDirectEdge(Var("s_child"), P(), Var("s"), DefaultTermIndex())
+          , CGenRecurse(
+              NameNoArgs("Map1")
+            , Var("stmts")
+            , Tuple([Var("s_child")])
+            , NoType()
+            )
+          ]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Module", [Var("name"), Var("stmts")])
+        , Tuple([Var("s")])
+        , NoType()
+        , [ NewScopes([Var("module_scope")])
+          , CGDirectEdge(Var("module_scope"), P(), Var("s"), DefaultTermIndex())
+          , CGAssoc(
+              Occurrence(Namespace("Module"), Var("name"), DefaultOccurrenceIndex())
+            , I()
+            , Var("module_scope")
+            , DefaultTermIndex()
+            )
+          , CGDecl(
+              Occurrence(Namespace("Module"), Var("name"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CGenRecurse(
+              NameNoArgs("Map1")
+            , Var("stmts")
+            , Tuple([Var("module_scope")])
+            , NoType()
+            )
+          ]
+        )
+      , CGenMatchRule(
+          NoName()
+        , Op("Import", [Var("name")])
+        , Tuple([Var("s")])
+        , NoType()
+        , [ CGRef(
+              Occurrence(Namespace("Module"), Var("name"), DefaultOccurrenceIndex())
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          , CResolve(
+              Occurrence(Namespace("Module"), Var("name"), DefaultOccurrenceIndex())
+            , Var("module_def")
+            , DefaultMessage()
+            )
+          , CGNamedEdge(
+              Occurrence(Namespace("Module"), Var("name"), DefaultOccurrenceIndex())
+            , I()
+            , Var("s")
+            , DefaultTermIndex()
+            )
+          ]
+        )
+      ]
+    )
+  ]
+)

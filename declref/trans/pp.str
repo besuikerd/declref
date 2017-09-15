@@ -1,0 +1,49 @@
+module pp
+
+imports
+
+  libstratego-gpp
+  libspoofax/sdf/pp
+  libspoofax/editor/refactoring/-
+  pp/declref-parenthesize
+  pp/declref-pp
+
+rules
+
+  editor-format:
+    (node, _, ast, path, project-path) -> (filename, result)
+    with
+      ext      := <get-extension> path
+    ; filename := <guarantee-extension(|$[pp.[ext]])> path
+    ; result   := <pp-debug> node
+
+rules
+  
+  pp-declref-string =
+    parenthesize-declref
+    ; prettyprint-declref-start-symbols
+    ; !V([], <id>)
+    ; box2text-string(|120)
+      
+  pp-partial-declref-string =
+    parenthesize-declref
+    ; prettyprint-declref
+    ; !V([], <id>)
+    ; box2text-string(|120)
+    
+  pp-partial-declref-string(|sort) =
+    parenthesize-declref
+    ; prettyprint-declref(|sort)
+    ; !V([], <id>)
+    ; box2text-string(|120)  
+      
+  pp-debug :
+    ast -> result
+    with
+       result := <pp-declref-string> ast
+    <+ <bottomup(try(not(is-string); not(is-list); not(pp-declref-string); debug(!"cannot pp ")))> ast
+    ;  result := ""
+
+rules
+  
+  construct-textual-change = construct-textual-change(pp-partial-declref-string, parenthesize, override-reconstruction, resugar)

@@ -1,0 +1,88 @@
+constraints {
+  @:45.params := #-module_scope-3
+  ?-ty-6 == TInt() | error (default) @:22
+  ?-ty-3 == ?-ty-4 | error (default) @:9
+  @:5.params := #-module_scope-1
+  @:23.params := #-module_scope-2
+  Module{"B" @:40} -> #-s_child-1 @:41
+  @:29.type := ?-t2-1
+  Module{"B" @:17} ===> #-module_scope-2 @:38
+  Module{"B" @:17} <- #-s-1 @:38
+  @:27.params := #-module_scope-2
+  ?-ty-4 == TInt() | error (default) @:9
+  @:49.params := #-s-1
+  @:9.type := ?-ty-3
+  @:35.params := #-module_scope-2
+  ?-tlub-1 is sub.LUB of (?-t1-1,?-t2-1) | error (default) @:30
+  @:41.params := #-s_child-1
+  Var{"z" @:26} |-> ?-name_def-1 | error (default) @:27
+  @:16.params := #-s-1
+  @:10.params := #-module_scope-1
+  Var{"y" @:7} <- #-module_scope-1 @:10
+  ?-ety-4 == ?-ty-7 | error expected type: ?-ty-7, got: ?-ety-4 @:30
+  ?-ty-2 == TInt() | error (default) @:4
+  Var{"z" @:20} <- #-module_scope-2 @:23
+  @:6.params := #-module_scope-1
+  @:31.params := #-module_scope-2
+  @:24.params := #-module_scope-2
+  #-module_scope-2 ---> #-s-1 @:38
+  ?-ety-3 == ?-ty-5 | error expected type: ?-ty-5, got: ?-ety-3 @:22
+  Module{"B" @:40} <=== #-s_child-1 @:41
+  @:46.params := #-module_scope-3
+  @:4.params := #-module_scope-1
+  Module{"A" @:1} <- #-s-1 @:16
+  Var{"x" @:25} <- #-module_scope-2 @:31
+  @:50.params := #-s-1
+  ?-name_def-1.type := ?-ty-8  | error (default) @:27
+  Module{"C" @:39} <- #-s-1 @:49
+  @:13.params := #-module_scope-1
+  ?-ety-2 == ?-ty-3 | error expected type: ?-ty-3, got: ?-ety-2 @:9
+  ?-ty-7 == ?-tlub-1 | error (default) @:30
+  @:44.params := #-s_child-1
+  ?-ty-9 == TInt() | error (default) @:29
+  @:19.params := #-module_scope-2
+  Module{"A" @:18} -> #-module_scope-2 @:19
+  @:54.params := #-s-1
+  Var{"x" @:2}.type := ?-ty-1  | error (default) @:5
+  @:9.params := #-module_scope-1
+  Module{"A" @:18} <=== #-module_scope-2 @:19
+  @:32.params := #-module_scope-2
+  #-module_scope-3 ---> #-s-1 @:49
+  @:30.type := ?-ty-7
+  Var{"z" @:20}.type := ?-ty-5  | error (default) @:23
+  ?-ety-1 == ?-ty-1 | error expected type: ?-ty-1, got: ?-ety-1 @:4
+  ?-t2-1 <sub! Numeric() | error (default) @:30
+  @:4.type := ?-ty-1
+  @:29.params := #-module_scope-2
+  ?-ty-1 == ?-ty-2 | error (default) @:4
+  @:51.params := #-s-1
+  Module{"A" @:18} |-> ?-module_def-1 | error (default) @:19
+  Var{"z" @:26} -> #-module_scope-2 @:27
+  @:15.params := #-module_scope-1
+  @:12.params := #-module_scope-1
+  @:37.params := #-module_scope-2
+  ?-ty-5 == ?-ty-6 | error (default) @:22
+  ?-t1-1 <sub! Numeric() | error (default) @:30
+  #-module_scope-1 ---> #-s-1 @:16
+  @:55.params := #-s-1
+  ?-t1-1 == ?-ty-8 | error (default) @:27
+  @:33.params := #-module_scope-2
+  ?-t2-1 == ?-ty-9 | error (default) @:29
+  @:22.params := #-module_scope-2
+  Var{"x" @:25}.type := ?-ty-7  | error (default) @:31
+  @:48.params := #-module_scope-3
+  @:22.type := ?-ty-5
+  @:27.type := ?-t1-1
+  @:52.params := #-s-1
+  Var{"y" @:7}.type := ?-ty-3  | error (default) @:10
+  @:38.params := #-s-1
+  Module{"C" @:39} ===> #-module_scope-3 @:49
+  Module{"A" @:1} ===> #-module_scope-1 @:16
+  @:42.params := #-s_child-1
+  @:34.params := #-module_scope-2
+  @:11.params := #-module_scope-1
+  #-s_child-1 ---> #-module_scope-3 @:45
+  @:30.params := #-module_scope-2
+  Module{"B" @:40} |-> ?-module_def-2 | error (default) @:41
+  Var{"x" @:2} <- #-module_scope-1 @:5
+}

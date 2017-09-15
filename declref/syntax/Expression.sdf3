@@ -1,0 +1,57 @@
+module Expression
+
+imports
+  Common
+  Type
+
+context-free syntax
+  
+  Exp = <(<Exp>)> {bracket}
+  Exp.Int = INT
+  Exp.Float = FLOAT
+  Exp.String = STRING
+  Exp.True = "true"
+  Exp.False = "false"
+  Exp.Apply = <<ID>(<{Exp ", "}*>)>
+  Exp.Ref = ID
+  
+  
+  Exp.Add = <<Exp> + <Exp>> { left }
+  Exp.Sub = <<Exp> - <Exp>> { left }
+  Exp.Mul = <<Exp> * <Exp>> { left }
+  Exp.Div = <<Exp> / <Exp>> { left }
+  
+  Exp.Gt  = [[Exp] > [Exp]] { left }
+  Exp.Gte  = [[Exp] >= [Exp]] { left }
+  Exp.Lt  = [[Exp] < [Exp]] { left }
+  Exp.Lte  = [[Exp] <= [Exp]] { left }
+  
+  Exp.And = <<Exp> && <Exp>> { left }
+  Exp.Or = <<Exp> || <Exp>> { left }
+  
+  
+  Exp.Eq = <<Exp> == <Exp>> { left }
+  Exp.Neq = <<Exp> != <Exp>> { left }
+  
+  Exp.IfElse = <if <Exp> then <Exp> else <Exp> end>
+  
+context-free priorities
+
+  { left: 
+    Exp.Mul
+    Exp.Div
+  } > { left:
+    Exp.Add
+    Exp.Sub
+  } > {
+    Exp.Gt
+    Exp.Gte
+    Exp.Lt
+    Exp.Lte
+    Exp.Eq
+    Exp.Neq
+  } > {
+    Exp.And
+  } > {
+    Exp.Or
+  }

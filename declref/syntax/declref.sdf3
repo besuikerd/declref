@@ -1,0 +1,34 @@
+module declref
+
+imports
+  
+  Common
+  Type
+  Expression
+
+context-free start-symbols
+  
+  Start
+
+context-free syntax
+  
+  Start.Program = <<{Statement "\n"}*>>
+  
+  Statement.Decl = <def <Definition>>
+  Statement.Scope = < { 
+      <{Statement "\n"}*> 
+    }
+	>
+	
+	Statement.StatementExp = Exp
+	
+	Definition.VarDefinition = <<ID> = <Exp>>
+	Definition.FunctionDefinition = <<ID>(<{TypeParameter ", "}*>) = <Exp>>
+  TypeParameter.TypeParameter = <<ID> : <Type>>
+	
+	Statement.Module = <module <ID> {
+    <{Statement "\n"}*>
+	}>
+	
+	Statement.Import = <import <ID>>
+  

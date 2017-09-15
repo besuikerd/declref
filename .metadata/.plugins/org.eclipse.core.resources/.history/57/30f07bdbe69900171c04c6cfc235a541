@@ -1,0 +1,18 @@
+
+
+module A {
+  def f(x: Int) = x + 1
+  def b = f(2)
+}
+
+module B {
+  import A
+  b
+}
+
+module C {
+  {
+    import B
+    f(2, 3) 
+  }
+}

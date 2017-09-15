@@ -1,0 +1,20 @@
+
+
+module A {
+  def f(x: Int, y: Int) = y + x
+  def b = f(2,3)
+  
+  f(2,3) + f(2,4)
+}
+
+module B {
+  import A
+  b
+}
+
+module C {
+  {
+    import B
+    f(2, 3) 
+  }
+}

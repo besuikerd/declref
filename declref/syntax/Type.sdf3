@@ -1,0 +1,10 @@
+module Type
+
+imports
+  
+context-free syntax
+
+  Type.BooleanType = <Boolean>
+  Type.StringType = <String>
+  Type.IntType = <Int>
+  Type.FloatType = <Float>

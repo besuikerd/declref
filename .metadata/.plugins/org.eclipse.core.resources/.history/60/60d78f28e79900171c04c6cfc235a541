@@ -1,0 +1,144 @@
+module static-semantics
+
+imports
+  signatures/-
+
+signature
+  constructors
+    TBoolean : Type
+    TInt     : Type
+    TFloat   : Type
+    TString  : Type
+    
+    Ordinal  : Type
+    Numeric  : Type
+    
+  constructors
+    FunctionType: Type * list(Type) -> FunctionType 
+
+relations
+  reflexive, anti-symmetric, transitive sub : Type * Type
+
+rules
+
+  init ^ (s) := 
+    // relations
+    Numeric() <sub! Ordinal(),
+    TFloat() <sub! Numeric(),
+    TInt() <sub! Numeric(),
+    new s.
+  
+  [[ Program(stmts) ^ (s) ]] :=
+    Map1 [[ stmts ^ (s) ]].
+
+rules //statements
+  [[ Decl(decl) ^ (s) ]] := 
+    [[decl ^ (s)]].
+    
+  [[ StatementExp(exp) ^ (s) ]] :=
+    [[ exp ^ (s) : _ ]].
+    
+  [[ VarDefinition(name, exp) ^ (s) ]] := 
+    [[ exp ^ (s) : ty ]],
+    ety == ty | error $[expected type: [ty], got: [ety]] @ exp,
+    Var{name} <- s,
+    Var{name} : ty.
+  
+  [[ FunctionDefinition(name, params, exp) ^ (s) ]] := 
+    Fun{name} <- s,
+    Fun{name} : fty,
+    new function_scope,
+    function_scope -P-> s,
+    Map1T [[ params ^ (function_scope): pty ]],
+    [[ exp ^ (function_scope) : ty ]],
+    fty == FunctionType(ty, pty).
+  
+  [[ TypeParameter(name, type) ^ (s) : ty ]] :=
+    [[type ^ (s) : ty ]],
+    Var{name} <- s,
+    Var{name} : ty.
+
+rules // expressions
+  [[ Int(i) ^ (s) : ty ]]         := ty == TInt().
+  [[ Float(f) ^ (s) : ty ]]       := ty == TFloat().
+  [[ String(str) ^ (s) : ty ]]    := ty == TString().
+  [[ True() ^ (s) : ty ]]         := ty == TBoolean().
+  [[ False() ^ (s) : ty ]]        := ty == TBoolean().
+  
+  [[ Add(e1, e2) ^ (s) : tlub ]] :=
+    [[ e1 ^ (s) : t1 ]],
+    [[ e2 ^ (s) : t2 ]],
+    t1 <sub! Numeric(),
+    t2 <sub! Numeric(),
+    tlub is sub.lub of (t1, t2).
+  
+  [[ Sub(e1, e2) ^ (s) : tlub ]] :=
+    [[ e1 ^ (s) : t1 ]],
+    [[ e2 ^ (s) : t2 ]],
+    t1 <sub! Numeric(),
+    t2 <sub! Numeric(),
+    tlub is sub.lub of (t1, t2).
+    
+  [[ Mul(e1, e2) ^ (s) : tlub ]] :=
+    [[ e1 ^ (s) : t1 ]],
+    [[ e2 ^ (s) : t2 ]],
+    t1 <sub! Numeric(),
+    t2 <sub! Numeric(),
+    tlub is sub.lub of (t1, t2).
+    
+  [[ Div(e1, e2) ^ (s) : tlub ]] :=
+    [[ e1 ^ (s) : t1 ]],
+    [[ e2 ^ (s) : t2 ]],
+    t1 <sub! Numeric(),
+    t2 <sub! Numeric(),
+    tlub is sub.lub of (t1, t2).
+    
+  [[ Gt(e1, e2) ^ (s) : TBoolean() ]] :=
+    [[ e1 ^ (s) : t1 ]],
+    [[ e2 ^ (s) : t2 ]],
+    t1 <sub! Ordinal(),
+    t2 <sub! Ordinal().
+    
+  [[ IfElse(c, t, f) ^ (s) : ty ]] :=
+    [[c ^ (s) : TBoolean()]],
+    [[t ^ (s) : ty ]],
+    [[f ^ (s) : ty ]].
+  
+  [[ Ref(name) ^ (s) : ty ]] := 
+    Var{name} -> s,
+    Var{name} |-> name_def,
+    name_def : ty.
+  
+  [[ Apply(fn, params) ^ (s): rty ]] := 
+    Fun{fn} -> s,
+    Fun{fn} |-> fn_def,
+    fn_def : FunctionType(rty, fpty),
+    Map1T [[params ^ (s) : pty]],
+    fpty == pty | error $[invalid function parameters] @ fn.
+    
+    
+rules // types
+  [[ BooleanType() ^ (s) : ty ]]  := ty == TBoolean().
+  [[ IntType() ^ (s) : ty ]]      := ty == TInt().
+  [[ FloatType() ^ (s) : ty ]]      := ty == TFloat().
+  [[ StringType() ^ (s) : ty ]]   := ty == TString().
+  
+  [[ Scope(stmts) ^ (s) ]] :=
+    new s_child,
+    s_child -P-> s,
+    Map1 [[ stmts ^ (s_child) ]].
+  [[ Module(name, stmts) ^ (s) ]] :=
+    new module_scope,
+    module_scope -P-> s,
+    Module{name} =I=> module_scope,
+    Module{name} <- s,
+    Map1 [[ stmts ^ (module_scope) ]].
+  
+  [[ Import(name) ^ (s) ]] := 
+    Module{name} -> s,
+    Module{name} |-> module_def,
+    Module{name} <=I= s.
+  
+rules
+
+
